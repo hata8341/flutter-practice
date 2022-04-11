@@ -1,110 +1,199 @@
 import 'package:flutter/material.dart';
 
+// TapboxA manages its own state.
+
+//------------------------- TapboxA ----------------------------------
+
 void main() {
-  return runApp(const MyApp());
+  runApp(const MyApp());
 }
+
+class ParentWidget extends StatefulWidget {
+  const ParentWidget({Key? key}) : super(key: key);
+
+  @override
+  _ParentWidgetState createState() => _ParentWidgetState();
+}
+
+class _ParentWidgetState extends State<ParentWidget> {
+  bool _active = false;
+
+  void _handleTapboxChanged(bool newValue) {
+    setState(() {
+      _active = newValue;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: TapboxC(
+        active: _active,
+        onChanged: _handleTapboxChanged,
+      ),
+    );
+  }
+}
+
+//------------------------- TapboxB----------------------------------
+
+class TapboxB extends StatelessWidget {
+  const TapboxB({
+    Key? key,
+    this.active = false,
+    required this.onChanged,
+  }) : super(key: key);
+
+  final bool active;
+  final ValueChanged<bool> onChanged;
+
+  void _handleTap() {
+    onChanged(!active);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleTap,
+      child: Container(
+        child: Center(
+          child: Text(
+            active ? 'Active' : 'Inacitve',
+            style: const TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: BoxDecoration(
+            color: active ? Colors.lightGreen[700] : Colors.grey[500]),
+      ),
+    );
+  }
+}
+
+class TapboxA extends StatefulWidget {
+  const TapboxA({Key? key}) : super(key: key);
+
+  @override
+  _TapboxAState createState() => _TapboxAState();
+}
+
+class _TapboxAState extends State<TapboxA> {
+  bool _active = false;
+
+  void _handleTap() {
+    setState(() {
+      _active = !_active;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleTap,
+      child: Container(
+        child: Center(
+          child: Text(
+            _active ? 'Active' : 'Inactive',
+            style: const TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: BoxDecoration(
+          color: _active ? Colors.lightGreen[700] : Colors.grey[600],
+        ),
+      ),
+    );
+  }
+}
+
+//------------------------- MyApp ----------------------------------
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Widget titleSectoion = Container(
-      padding: const EdgeInsets.all(32),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: const Text(
-                    'Oeschinen Lake Campground',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Text(
-                  'Kandersteg, Switzerland',
-                  style: TextStyle(
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.star,
-            color: Colors.red[500],
-          ),
-          const Text('41'),
-        ],
-      ),
-    );
-
-    Column _buildButtonColumn(Color color, IconData icon, String label) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: color),
-          Container(
-              margin: const EdgeInsets.only(top: 8),
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400,
-                  color: color,
-                ),
-              )),
-        ],
-      );
-    }
-
-    Color color = Theme.of(context).primaryColor;
-
-    Widget buttonSection = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildButtonColumn(color, Icons.call, 'CALL'),
-        _buildButtonColumn(color, Icons.near_me, 'ROUTE'),
-        _buildButtonColumn(color, Icons.share, 'SHARE'),
-      ],
-    );
-
-    Widget textSection = const Padding(
-      padding: EdgeInsets.all(32),
-      child: Text(
-        'Lake Oeschinen lies at the foot of the Blüemlisalp in the Bernese '
-        'Alps. Situated 1,578 meters above sea level, it is one of the '
-        'larger Alpine Lakes. A gondola ride from Kandersteg, followed by a '
-        'half-hour walk through pastures and pine forest, leads you to the '
-        'lake, which warms to 20 degrees Celsius in the summer. Activities '
-        'enjoyed here include rowing, and riding the summer toboggan run.',
-        softWrap: true,
-      ),
-    );
-
     return MaterialApp(
-      title: 'Flutter layout demo',
+      title: 'Flutter Demo',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Flutter layout demo'),
+          title: const Text('Flutter Demo'),
         ),
-        body: ListView(
-          children: [
-            Image.asset(
-              'images/lake.jpg',
-              width: 600,
-              height: 240,
-              fit: BoxFit.cover,
-            ),
-            titleSectoion,
-            buttonSection,
-            textSection
-          ],
+        body: const Center(
+          child: TapboxA(),
         ),
+      ),
+    );
+  }
+}
+
+//----------------------------- TapboxC ------------------------------
+
+class TapboxC extends StatefulWidget {
+  const TapboxC({
+    Key? key,
+    this.active = false,
+    required this.onChanged,
+  }) : super(key: key);
+
+  final bool active;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  _TapboxCState createState() => _TapboxCState();
+}
+
+class _TapboxCState extends State<TapboxC> {
+  bool _highlight = false;
+
+  void _handleTapDown(TapDownDetails details) {
+    setState(() {
+      _highlight = true;
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTap() {
+    widget.onChanged(!widget.active);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTap: _handleTap,
+      onTapCancel: _handleTapCancel,
+      child: Container(
+        child: Center(
+          child: Text(
+            widget.active ? 'Active' : 'Inactive',
+            style: const TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
+        ),
+        width: 200.0,
+        height: 200.0,
+        decoration: BoxDecoration(
+            color: widget.active ? Colors.lightGreen[700] : Colors.grey[500],
+            border: _highlight
+                ? Border.all(
+                    color: Colors.teal[700]!,
+                    width: 10.0,
+                  )
+                : null),
       ),
     );
   }
